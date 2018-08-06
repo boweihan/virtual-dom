@@ -3,7 +3,8 @@
 /** @jsx h */
 
 // custom implementation of h()
-const h = (type, props, ...children) => {
+// prettier-ignore
+const h = (type, props, ...children) => { // eslint-disable-line
   return { type, props, children };
 };
 
@@ -22,10 +23,8 @@ const createElement = node => {
     return document.createTextNode(node);
   }
   const el = document.createElement(node.type);
-  node.children.map(createElement).forEach(
-    // bind appendChild to the parent element
-    el.appendChild.bind(el),
-  );
+  // bind appendChild to the parent element
+  node.children.map(createElement).forEach(el.appendChild.bind(el));
   return el;
 };
 
