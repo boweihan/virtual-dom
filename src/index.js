@@ -50,7 +50,22 @@ const updateElement = (
     // there is no new node but there was an old node, remove the old node from the DOM
     parent.removeChild(parent.childNodes[index]);
   } else if (changed(newNode, oldNode)) {
+    // the two nodes exist but are different, replace the old node
     parent.replaceChild(createElement(newNode), parent.childNodes[index]);
+  } else if (newNode.type) {
+    // the node is not a text node and therefore has children
+    // DFS through children to update
+    const newLength = newNode.children.length;
+    const oldLength = oldNode.children.length;
+    let maxLen = Math.max(newLength, oldLength);
+    for (let i = 0; i < maxLen; i++) {
+      updateElement(
+        parent.childNodes[index],
+        newNode.children[i],
+        oldNode.children[i],
+        i,
+      );
+    }
   }
 };
 
@@ -67,14 +82,24 @@ const changed = (node1, node2) => {
   );
 };
 
-// sample DOM tree
-const a = (
-  <ul class="list">
-    <li>item 1</li>
-    <li>item 2</li>
-  </ul>
-);
-
-console.log(a);
-let el = createElement(a);
-console.log(el);
+// const a = (
+//   <ul class="list">
+//     <li>item 1</li>
+//     <li>item 2</li>
+//   </ul>
+// );
+//
+// const b = (
+//   <ul class="list">
+//     <li>item 21</li>
+//     <li>item 2</li>
+//   </ul>
+// );
+//
+// const $root = document.getElementById('root');
+// const $reload = document.getElementById('reload');
+//
+// updateElement($root, a);
+// $reload.addEventListener('click', () => {
+//   updateElement($root, b, a);
+// });
