@@ -1,0 +1,25 @@
+{
+  "name": "virtual-dom",
+  "version": "1.0.0",
+  "description": "Virtual DOM library and visualization tool",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "eslint": "^5.3.0",
+    "babel-eslint": "^8.2.6",
+    "flow": "^0.2.3"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/boweihan/virtual-dom.git"
+  },
+  "author": "Bowei Han",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/boweihan/virtual-dom/issues"
+  },
+  "homepage": "https://github.com/boweihan/virtual-dom#readme"
+}
