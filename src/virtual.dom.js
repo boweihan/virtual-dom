@@ -246,7 +246,7 @@ const extractEventName = name => {
 //---------------------------------------------------------
 
 function log(e) {
-  console.log(e.target.value);
+  console.log(e.target.value); // eslint-disable-line
 }
 
 const f = (
