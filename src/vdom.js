@@ -44,7 +44,7 @@ export default class VDom {
     newNode: Node,
     oldNode: Node,
     index?: number = 0 /* index of child */,
-  ) => {
+  ): void => {
     if (newNode && !oldNode) {
       // there is a new node and no old node, create the new node
       $parent.appendChild(VDom.createElement(newNode));
