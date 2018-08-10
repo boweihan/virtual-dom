@@ -1,12 +1,15 @@
+// @flow
+
+import type { Node, Element, Props, Value } from './types/types';
+
 export default class VDom {
-  // virtual DOM implementation
   /**************************** ELEMENT OPERATIONS ******************************/
 
   /**
    * create a new node
    * @param node virtual dom node representation
    */
-  static createElement = node => {
+  static createElement = (node?: Node): ?Element | ?Text => {
     if (!node) {
       // handle falsy nodes
       return;
@@ -23,6 +26,7 @@ export default class VDom {
     VDom.addEventListeners($el, node.props);
 
     // bind appendChild to the parent element
+    // $FlowFixMe
     node.children.map(VDom.createElement).forEach($el.appendChild.bind($el));
     return $el;
   };
@@ -36,10 +40,10 @@ export default class VDom {
    *
    */
   static updateElement = (
-    $parent,
-    newNode,
-    oldNode,
-    index = 0 /* index of child */,
+    $parent: Element,
+    newNode: Node,
+    oldNode: Node,
+    index?: number = 0 /* index of child */,
   ) => {
     if (newNode && !oldNode) {
       // there is a new node and no old node, create the new node
@@ -53,7 +57,12 @@ export default class VDom {
         VDom.createElement(newNode),
         $parent.childNodes[index],
       );
-    } else if (newNode.type) {
+    } else if (
+      // string checks for flow, don't need them in theory because newNode.type returns undefined
+      typeof newNode !== 'string' &&
+      typeof oldNode !== 'string' &&
+      newNode.type
+    ) {
       // node types haven't changed, update the props
       VDom.updateProps($parent.childNodes[index], newNode.props, oldNode.props);
       // the node is not a text node and therefore has children
@@ -77,13 +86,20 @@ export default class VDom {
    * @param node1 virtual dom node
    * @param node2 virtual dom node
    */
-  static changed = (node1, node2) => {
-    return (
-      typeof node1 !== typeof node2 ||
-      (typeof node1 === 'string' && node1 !== node2) ||
-      node1.type !== node2.type ||
-      (node1.props && node1.props.forceUpdate) // hacky solution for forcing updates for event listeners
-    );
+  static changed = (node1: Node, node2: Node): boolean => {
+    if (typeof node1 !== typeof node2) {
+      return true;
+    }
+    if (typeof node1 === 'string' && node1 !== node2) {
+      return true;
+    }
+    if (node1.type && node2.type && node1.type !== node2.type) {
+      return true;
+    }
+    if (node1.props && node1.props.forceUpdate) {
+      return true;
+    }
+    return false;
   };
 
   /****************************** PROP OPERATIONS *******************************/
@@ -94,7 +110,7 @@ export default class VDom {
    * @param name prop name
    * @param value prop value
    */
-  static setProp = ($target, name, value) => {
+  static setProp = ($target: Element, name: string, value: Value): void => {
     if (VDom.isCustomProp(name)) {
       return;
     } else if (name === 'className') {
@@ -111,7 +127,7 @@ export default class VDom {
    * @param $target target DOM element
    * @param props list of props for target element
    */
-  static setProps = ($target, props) => {
+  static setProps = ($target: Element, props: Props): void => {
     Object.keys(props).forEach(name => {
       VDom.setProp($target, name, props[name]);
     });
@@ -123,7 +139,11 @@ export default class VDom {
    * @param name name of prop
    * @param value boolean value of prop
    */
-  static setBooleanProp = ($target, name, value) => {
+  static setBooleanProp = (
+    $target: Element,
+    name: string,
+    value: any,
+  ): void => {
     if (value) {
       $target.setAttribute(name, value);
       $target[name] = true;
@@ -138,7 +158,7 @@ export default class VDom {
    * @param name name of prop
    * @param value boolean value of prop
    */
-  static removeProp = ($target, name, value) => {
+  static removeProp = ($target: Element, name: string, value: Value): void => {
     if (VDom.isCustomProp(name)) {
       return;
     } else if (name === 'className') {
@@ -155,7 +175,7 @@ export default class VDom {
    * @param $target target DOM element
    * @param name name of prop
    */
-  static removeBooleanProp = ($target, name) => {
+  static removeBooleanProp = ($target: Element, name: string): void => {
     $target.removeAttribute(name);
     $target[name] = false;
   };
@@ -172,7 +192,12 @@ export default class VDom {
    * @param newVal new prop value
    * @param oldVal old prop value
    */
-  static updateProp = ($target, name, newVal, oldVal) => {
+  static updateProp = (
+    $target: Element,
+    name: string,
+    newVal: Value,
+    oldVal: Value,
+  ): void => {
     if (!newVal) {
       VDom.removeProp($target, name, oldVal);
     } else if (!oldVal || newVal !== oldVal) {
@@ -186,7 +211,11 @@ export default class VDom {
    * @param newProps
    * @param oldProps
    */
-  static updateProps = ($target, newProps, oldProps = {}) => {
+  static updateProps = (
+    $target: Element,
+    newProps: Props,
+    oldProps: Props = {},
+  ): void => {
     const props = Object.assign({}, newProps, oldProps);
     Object.keys(props).forEach(name => {
       VDom.updateProp($target, name, newProps[name], oldProps[name]);
@@ -200,7 +229,7 @@ export default class VDom {
    * @param $target target DOM element
    * @param props virtual props for DOM element
    */
-  static addEventListeners = ($target, props) => {
+  static addEventListeners = ($target: Element, props: Props): void => {
     Object.keys(props).forEach(name => {
       if (VDom.isEventProp(name)) {
         $target.addEventListener(VDom.extractEventName(name), props[name]);
@@ -214,7 +243,7 @@ export default class VDom {
    * check if prop is a custom prop, so we don't set it on a real event node
    * @param name name of prop
    */
-  static isCustomProp = name => {
+  static isCustomProp = (name: string): boolean => {
     return VDom.isEventProp(name) || name === 'forceUpdate';
   };
 
@@ -222,7 +251,7 @@ export default class VDom {
    * check if prop is an event prop (i.e. onClick)
    * @param name name of prop
    */
-  static isEventProp = name => {
+  static isEventProp = (name: string): boolean => {
     return /^on/.test(name);
   };
 
@@ -230,7 +259,7 @@ export default class VDom {
    * extract the real event from an event prop
    * @param name name of prop
    */
-  static extractEventName = name => {
+  static extractEventName = (name: string): string => {
     return name.slice(2).toLowerCase();
   };
 }

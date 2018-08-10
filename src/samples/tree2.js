@@ -1,4 +1,6 @@
+// @flow
 /** @jsx clazz */
+
 import clazz from '../helpers/clazz'; // eslint-disable-line
 import Logger from '../helpers/logger';
 

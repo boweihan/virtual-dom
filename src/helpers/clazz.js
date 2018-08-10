@@ -1,8 +1,9 @@
-/** custom implementation of h()
- * set props to empty object if there are no attributes
- */
+// @flow
+
+import type { Node } from '../types/types';
+
 // prettier-ignore
-const clazz = (type, props, ...children) => { // eslint-disable-line
+const clazz = (type: string, props: Object, ...children: Array<Node | string>): Node => { // eslint-disable-line
   return { type, props: props || {}, children };
 };
 
