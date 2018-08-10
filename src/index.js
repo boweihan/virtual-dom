@@ -12,6 +12,8 @@ const h = (type, props, ...children) => { // eslint-disable-line
 
 // virtual DOM implementation
 
+/**************************** ELEMENT OPERATIONS ******************************/
+
 /**
  * create a new node
  * @param node virtual dom node representation
@@ -28,6 +30,9 @@ const createElement = node => {
 
   // set props
   setProps($el, node.props);
+
+  // set event listeners
+  addEventListeners($el, node.props);
 
   // bind appendChild to the parent element
   node.children.map(createElement).forEach($el.appendChild.bind($el));
@@ -59,7 +64,7 @@ const updateElement = (
     $parent.replaceChild(createElement(newNode), $parent.childNodes[index]);
   } else if (newNode.type) {
     // node types haven't changed, update the props
-    updateProps($parent.childNodes[index], oldNode.props, newNode.props);
+    updateProps($parent.childNodes[index], newNode.props, oldNode.props);
     // the node is not a text node and therefore has children
     // DFS through children to update
     const newLength = newNode.children.length;
@@ -85,9 +90,12 @@ const changed = (node1, node2) => {
   return (
     typeof node1 !== typeof node2 ||
     (typeof node1 === 'string' && node1 !== node2) ||
-    node1.type !== node2.type
+    node1.type !== node2.type ||
+    (node1.props && node1.props.forceUpdate) // hacky solution for forcing updates for event listeners
   );
 };
+
+/****************************** PROP OPERATIONS *******************************/
 
 /**
  * wrapper around setAttribute
@@ -170,13 +178,13 @@ const removeBooleanProp = ($target, name) => {
  * 4) newVal and oldVal are the same
  * @param $target target DOM element
  * @param name prop name
- * @param oldVal old prop value
  * @param newVal new prop value
+ * @param oldVal old prop value
  */
-const updateProp = ($target, name, oldVal, newVal) => {
+const updateProp = ($target, name, newVal, oldVal) => {
   if (!newVal) {
     removeProp($target, name, oldVal);
-  } else if (!oldVal || oldVal !== newVal) {
+  } else if (!oldVal || newVal !== oldVal) {
     setProp($target, name, newVal);
   }
 };
@@ -194,33 +202,78 @@ const updateProps = ($target, newProps, oldProps = {}) => {
   });
 };
 
+/************************** EVENT LISTENERS ***********************************/
+
 /**
- *  check if prop is a custom prop
+ * iterate through DOM element props and add event listeners
+ * @param $target target DOM element
+ * @param props virtual props for DOM element
+ */
+const addEventListeners = ($target, props) => {
+  Object.keys(props).forEach(name => {
+    if (isEventProp(name)) {
+      $target.addEventListener(extractEventName(name), props[name]);
+    }
+  });
+};
+
+/***************************** HELPERS ****************************************/
+
+/**
+ * check if prop is a custom prop, so we don't set it on a real event node
  * @param name name of prop
  */
 const isCustomProp = name => {
-  return false;
+  return isEventProp(name) || name === 'forceUpdate';
+};
+
+/**
+ * check if prop is an event prop (i.e. onClick)
+ * @param name name of prop
+ */
+const isEventProp = name => {
+  return /^on/.test(name);
+};
+
+/**
+ * extract the real event from an event prop
+ * @param name name of prop
+ */
+const extractEventName = name => {
+  return name.slice(2).toLowerCase();
 };
 
 //---------------------------------------------------------
 
+function log(e) {
+  console.log(e.target.value);
+}
+
 const f = (
   <ul style="list-style: none;">
-    <li className="item">item 1</li>
+    <li className="item" onClick={() => alert('hi!')}>
+      item 1
+    </li>
     <li className="item">
       <input type="checkbox" checked={true} />
-      <input type="text" disabled={false} />
+      <input type="text" onInput={log} />
     </li>
+    {/* this node will always be updated */}
+    <li forceUpdate={true}>text</li>
   </ul>
 );
 
 const g = (
   <ul style="list-style: none;">
-    <li className="item item2">item 1</li>
+    <li className="item item2" onClick={() => alert('hi!')}>
+      item 1
+    </li>
     <li style="background: red;">
       <input type="checkbox" checked={false} />
-      <input type="text" disabled={true} />
+      <input type="text" onInput={log} />
     </li>
+    {/* this node will always be updated */}
+    <li forceUpdate={true}>text</li>
   </ul>
 );
 
