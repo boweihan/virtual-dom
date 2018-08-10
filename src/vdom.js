@@ -1,4 +1,4 @@
-export default class VirtualDom {
+export default class VDom {
   // virtual DOM implementation
   /**************************** ELEMENT OPERATIONS ******************************/
 
@@ -17,15 +17,13 @@ export default class VirtualDom {
     const $el = document.createElement(node.type);
 
     // set props
-    VirtualDom.setProps($el, node.props);
+    VDom.setProps($el, node.props);
 
     // set event listeners
-    VirtualDom.addEventListeners($el, node.props);
+    VDom.addEventListeners($el, node.props);
 
     // bind appendChild to the parent element
-    node.children
-      .map(VirtualDom.createElement)
-      .forEach($el.appendChild.bind($el));
+    node.children.map(VDom.createElement).forEach($el.appendChild.bind($el));
     return $el;
   };
 
@@ -45,30 +43,26 @@ export default class VirtualDom {
   ) => {
     if (newNode && !oldNode) {
       // there is a new node and no old node, create the new node
-      $parent.appendChild(VirtualDom.createElement(newNode));
+      $parent.appendChild(VDom.createElement(newNode));
     } else if (!newNode && oldNode) {
       // there is no new node but there was an old node, remove the old node from the DOM
       $parent.removeChild($parent.childNodes[index]);
-    } else if (VirtualDom.changed(newNode, oldNode)) {
+    } else if (VDom.changed(newNode, oldNode)) {
       // the two nodes exist but are different, replace the old node
       $parent.replaceChild(
-        VirtualDom.createElement(newNode),
+        VDom.createElement(newNode),
         $parent.childNodes[index],
       );
     } else if (newNode.type) {
       // node types haven't changed, update the props
-      VirtualDom.updateProps(
-        $parent.childNodes[index],
-        newNode.props,
-        oldNode.props,
-      );
+      VDom.updateProps($parent.childNodes[index], newNode.props, oldNode.props);
       // the node is not a text node and therefore has children
       // DFS through children to update
       const newLength = newNode.children.length;
       const oldLength = oldNode.children.length;
       let maxLen = Math.max(newLength, oldLength);
       for (let i = 0; i < maxLen; i++) {
-        VirtualDom.updateElement(
+        VDom.updateElement(
           $parent.childNodes[index],
           newNode.children[i],
           oldNode.children[i],
@@ -101,12 +95,12 @@ export default class VirtualDom {
    * @param value prop value
    */
   static setProp = ($target, name, value) => {
-    if (VirtualDom.isCustomProp(name)) {
+    if (VDom.isCustomProp(name)) {
       return;
     } else if (name === 'className') {
       $target.setAttribute('class', value);
     } else if (typeof value === 'boolean') {
-      VirtualDom.setBooleanProp($target, name, value);
+      VDom.setBooleanProp($target, name, value);
     } else {
       $target.setAttribute(name, value);
     }
@@ -119,7 +113,7 @@ export default class VirtualDom {
    */
   static setProps = ($target, props) => {
     Object.keys(props).forEach(name => {
-      VirtualDom.setProp($target, name, props[name]);
+      VDom.setProp($target, name, props[name]);
     });
   };
 
@@ -145,12 +139,12 @@ export default class VirtualDom {
    * @param value boolean value of prop
    */
   static removeProp = ($target, name, value) => {
-    if (VirtualDom.isCustomProp(name)) {
+    if (VDom.isCustomProp(name)) {
       return;
     } else if (name === 'className') {
       $target.removeAttribute('class');
     } else if (typeof value === 'boolean') {
-      VirtualDom.removeBooleanProp($target, name);
+      VDom.removeBooleanProp($target, name);
     } else {
       $target.removeAttribute(name);
     }
@@ -180,9 +174,9 @@ export default class VirtualDom {
    */
   static updateProp = ($target, name, newVal, oldVal) => {
     if (!newVal) {
-      VirtualDom.removeProp($target, name, oldVal);
+      VDom.removeProp($target, name, oldVal);
     } else if (!oldVal || newVal !== oldVal) {
-      VirtualDom.setProp($target, name, newVal);
+      VDom.setProp($target, name, newVal);
     }
   };
 
@@ -195,7 +189,7 @@ export default class VirtualDom {
   static updateProps = ($target, newProps, oldProps = {}) => {
     const props = Object.assign({}, newProps, oldProps);
     Object.keys(props).forEach(name => {
-      VirtualDom.updateProp($target, name, newProps[name], oldProps[name]);
+      VDom.updateProp($target, name, newProps[name], oldProps[name]);
     });
   };
 
@@ -208,11 +202,8 @@ export default class VirtualDom {
    */
   static addEventListeners = ($target, props) => {
     Object.keys(props).forEach(name => {
-      if (VirtualDom.isEventProp(name)) {
-        $target.addEventListener(
-          VirtualDom.extractEventName(name),
-          props[name],
-        );
+      if (VDom.isEventProp(name)) {
+        $target.addEventListener(VDom.extractEventName(name), props[name]);
       }
     });
   };
@@ -224,7 +215,7 @@ export default class VirtualDom {
    * @param name name of prop
    */
   static isCustomProp = name => {
-    return VirtualDom.isEventProp(name) || name === 'forceUpdate';
+    return VDom.isEventProp(name) || name === 'forceUpdate';
   };
 
   /**
