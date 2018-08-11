@@ -2,7 +2,7 @@
 
 A lightweight virtual DOM implementation with visualizations.
 
-<img src="./images/web.png" width="500"/>
+<img src="./images/web.png" width="100%"/>
 
 ### Completed
 
