@@ -25,11 +25,11 @@ export default class VirtualDom {
     // set event listeners
     this.addEventListeners($el, node.props);
 
-    // bind appendChild to the parent element
+    // hardbind callbacks with arrow functions
     node.children
-      .map(this.createElement)
+      .map(child => this.createElement(child))
       // $FlowFixMe
-      .forEach($el.appendChild.bind($el));
+      .forEach(child => $el.appendChild(child));
     return $el;
   }
 

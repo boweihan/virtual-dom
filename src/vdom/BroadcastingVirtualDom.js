@@ -4,9 +4,9 @@ import VirtualDom from './VirtualDom';
 import type { Node, Element, Props, Value } from '../types/types';
 
 export default class BroadcastingVirtualDom extends VirtualDom {
-  createElement = (node?: Node): ?Element | ?Text => {
-    super.createElement(node);
-  };
+  createElement(node?: Node): ?Element | ?Text {
+    return super.createElement(node);
+  }
 
   updateElement(
     $parent: Element,
