@@ -2,7 +2,13 @@
   "name": "virtual-dom",
   "version": "1.0.0",
   "description": "Virtual DOM library and visualization tool",
-  "dependencies": {},
+  "dependencies": {
+    "babel-polyfill": "^6.26.0",
+    "brace": "^0.11.1",
+    "react": "^16.4.2",
+    "react-ace": "^6.1.4",
+    "react-dom": "^16.4.2"
+  },
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
@@ -11,6 +17,7 @@
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.24.1",
+    "css-loader": "^1.0.0",
     "eslint": "^5.3.0",
     "flow": "^0.2.3",
     "webpack": "^4.16.5",

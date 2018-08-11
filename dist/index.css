@@ -1,10 +1,12 @@
 body {
-  background-color: #333333;
+  margin: 0;
+  padding: 0;
 }
 
 #root {
   padding: 10px;
-  margin: 10px;
+  margin: 40px;
+  border: 10px solid #f0f0f0;
 }
 
 .item {
@@ -18,5 +20,39 @@ body {
 
 #reload {
   padding: 10px;
+  margin: 20px;
+  font-family: 'Hanalei Fill', cursive;
+  width: calc(100% - 40px);
+  background-color: #b3ffb3;
+}
+
+#reload:hover {
+  background-color: #00ff00;
+}
+
+#reload:active {
+  background-color: #008000;
+}
+
+#editor2,
+#editor1 {
+  width: calc(50% - 32px);
+  display: inline-block;
+  height: 30%;
   margin: 10px;
+  border-radius: 10px;
+}
+
+#header {
+  width: auto;
+  height: 80px;
+  background-color: #f0f0f0;
+  margin: 20px 20px 0px 20px;
+  border-radius: 10px;
+}
+
+#header > h1 {
+  line-height: 80px;
+  margin: 20px;
+  font-family: 'Hanalei Fill', cursive;
 }
