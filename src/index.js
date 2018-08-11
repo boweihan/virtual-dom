@@ -10,12 +10,14 @@ const $reload = document.getElementById('reload');
 
 if ($root) {
   let elem = vDom.createElement(tree1);
+  console.log(vDom.getSteps());
   if (elem) {
     $root.appendChild(elem);
   }
   if ($reload) {
     $reload.addEventListener('click', () => {
       vDom.updateElement($root, tree2, tree1);
+      console.log(vDom.getSteps());
     });
   }
 }

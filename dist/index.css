@@ -1,7 +1,10 @@
+body {
+  background-color: #333333;
+}
+
 #root {
-  border: 1px solid black;
   padding: 10px;
-  margin: 30px 0 0 0;
+  margin: 10px;
 }
 
 .item {
@@ -11,4 +14,9 @@
 
 .item2 {
   background: green;
+}
+
+#reload {
+  padding: 10px;
+  margin: 10px;
 }

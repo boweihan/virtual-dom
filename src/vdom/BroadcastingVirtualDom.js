@@ -1,9 +1,25 @@
 // @flow
 
 import VirtualDom from './VirtualDom';
-import type { Node, Element, Props, Value } from '../types/types';
+import type { Node, Element, Props, Value, Step } from '../types/types';
 
 export default class BroadcastingVirtualDom extends VirtualDom {
+  steps: Array<Step>;
+
+  constructor() {
+    super();
+    this.steps = [];
+  }
+
+  /**
+   * steps for animation
+   */
+  getSteps(): Array<Step> {
+    let steps = this.steps;
+    this.steps = [];
+    return steps;
+  }
+
   /** @extends **/
   createElement(node?: Node): ?Element | ?Text {
     return super.createElement(node);
@@ -16,11 +32,13 @@ export default class BroadcastingVirtualDom extends VirtualDom {
     oldNode: Node,
     index?: number = 0 /* index of child */,
   ): void {
+    this.steps.push({ type: 'update', value: $parent.childNodes[index] });
     super.updateElement($parent, newNode, oldNode, index);
   }
 
   /** @extends **/
   setProp($target: Element, name: string, value: Value): void {
+    this.steps.push({ type: 'setProp', value: $target });
     super.setProp($target, name, value);
   }
 
@@ -31,6 +49,7 @@ export default class BroadcastingVirtualDom extends VirtualDom {
 
   /** @extends **/
   removeProp($target: Element, name: string, value: Value): void {
+    this.steps.push({ type: 'removeProp', value: $target });
     super.removeProp($target, name, value);
   }
 
@@ -41,6 +60,7 @@ export default class BroadcastingVirtualDom extends VirtualDom {
     newVal: Value,
     oldVal: Value,
   ): void {
+    this.steps.push({ type: 'updateProp', value: $target });
     super.updateProp($target, name, newVal, oldVal);
   }
 
@@ -51,6 +71,7 @@ export default class BroadcastingVirtualDom extends VirtualDom {
 
   /** @extends **/
   addEventListeners($target: Element, props: Props): void {
+    this.steps.push({ type: 'addEventListeners', value: $target });
     super.addEventListeners($target, props);
   }
 }
